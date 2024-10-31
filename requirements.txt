@@ -7,4 +7,4 @@ streamlit==1.38.0
 
 webdriver-manager==4.0.2
 
-brew install nss gconf xquartz gtk+3 alsa-lib libappindicator liberation-fonts
+
