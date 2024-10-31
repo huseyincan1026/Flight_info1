@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 import havalimani as h
 
 options = webdriver.ChromeOptions()
-options.add_argument('--headless')  # Tarayıcıyı görünmez modda çalıştırır
+options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 
 def run():  
-    st.header('10 Gun Raporu')
+    st.header('10 Günlük ✈️ Raporu')
     
     # Havalimanı seçimi
     secim = str(st.selectbox("Bir havalimanı seçin:", h.air['airport']))
@@ -24,70 +24,71 @@ def run():
     # Tarih seçimi
     selected_date = st.date_input("Tarih Seçin", value=pd.Timestamp('today'))
 
-    fiyatlar = []  # Fiyatları saklamak için boş bir liste oluştur
+    fiyatlar = []
     gunler = []
+    
     # 10 gün boyunca fiyatları al
-    for i in range(5):
-        tarih = selected_date + timedelta(days=i)  # Her gün için tarihi hesapla
-        formatted_date = tarih.strftime("%d-%m-%Y").replace('-', '.')  # Tarihi formatla
+    for i in range(10):
+        tarih = selected_date + timedelta(days=i)
+        formatted_date = tarih.strftime("%d.%m.%Y")
 
         # URL oluşturma
         url = f'https://www.enuygun.com/ucak-bileti/arama/{secilen_air}-ecn-ercan-intl-havalimani-{secilen_code}-ecn/?gidis={formatted_date}&yetiskin=1&sinif=ekonomi&save=1&geotrip=international&trip=international&ref=ft-homepage'
         
-        # Tarayıcıyı başlat
         driver = webdriver.Chrome(options = options)
         driver.get(url)
 
         try:
-            # Fiyat bilgilerini almak için bekleyin
             flight_items = WebDriverWait(driver, 13).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.flight-item__wrapper'))
             )
-
-            # İlk fiyatı al
-            flight_fiyat = flight_items[0].text.split('\n')[8].split(' ')[0]  # İlk uçuşun fiyatı
+            flight_fiyat = flight_items[0].text.split('\n')[8].split(' ')[0]
             fiyatlar.append(float(flight_fiyat.replace('.','').replace(',','.')))
             gunler.append(formatted_date)
             
         except TimeoutException:
-            fiyatlar.append(None)  # Eğer fiyat alınamazsa None ekle
+            fiyatlar.append(None)
         finally:
-            driver.quit()  # Tarayıcıyı kapat
+            driver.quit()
     
-    # DataFrame Olusurma        
-    g_f = pd.DataFrame({'Date' : gunler,
-                        'Price' :fiyatlar})
-    
-    # Olusturulan DF icerisindeki price degerlerini sayisal hale donustur
+    # DataFrame Oluşturma        
+    g_f = pd.DataFrame({'Date': gunler, 'Price': fiyatlar})
     g_f['Price'] = pd.to_numeric(g_f['Price'])
+
+    # Boş fiyat verisi olmadığından emin ol
+    if g_f['Price'].notna().any():
+        min_price_index = g_f['Price'].idxmin()
+        min_price = g_f['Price'].min()
+        min_price_date = g_f.loc[min_price_index, 'Date']
+    else:
+        min_price_index = None
+        min_price = "Veri yok"
+        min_price_date = "Veri yok"
+
+    # Tarihleri datetime formatına çevir ve sıralama işlemini uygula
+    g_f['Date'] = pd.to_datetime(g_f['Date'], format="%d.%m.%Y")
+    g_f = g_f.sort_values('Date')
+    g_f['Date'] = g_f['Date'].dt.strftime("%d.%m.%Y")
     
-    # En dusuk fiyatin oldugu id bulalim
-    min_price_index = g_f['Price'].idxmin()
-    min_price = g_f['Price'].min()
-    min_price_date = g_f.loc[g_f['Price'].idxmin(), 'Date']
-    
-    #  date verilerimizi datetime'a donusturelim
-    g_f['Date'] = g_f['Date'].astype(str)
-    g_f['Date'] = pd.to_datetime(g_f['Date']).dt.strftime("%d-%m-%Y")
-    
-    styled_df = g_f
-    styled_df['Date']= pd.to_datetime(styled_df['Date']).dt.strftime("%d-%m-%Y")
-    
-    # Satir Stilini uygulama fonk olusturalim
+    # Minimum fiyat satırını renklendirme
     def highlight(row):
-       return ['background-color: green' if row.name == min_price_index else '' for _ in row]
+        return ['background-color: green' if row.name == min_price_index else '' for _ in row]
 
-    styled_df = styled_df.style.apply(highlight, axis=1)
-
+    if min_price_index is not None:
+        styled_df = g_f.style.apply(highlight, axis=1)
+        st.dataframe(styled_df)
+    else:
+        st.dataframe(g_f)
     
-    st.dataframe(styled_df) # dataframe'in ciktisini alalim
-  
-    # Cizgi grafigi olustturalim
-    st.line_chart(styled_df, x = 'Date', y= 'Price')      
+    # Çizgi grafiği
+    st.line_chart(g_f.set_index('Date')['Price'])
     
-    # en uygun biletin hangi gun oldugunu ve fiyatini yazdiralim
-    st.markdown(f"<p style='color: black; font-size: 14px; font-weight: bold;'> En uygun bilet {min_price_date} tarihli {min_price} TL fiyatlı bilettir. Bilet ayrıntılarını görüntülemek isterseniz menüden Uçuşlar sayfasına geçiş yapabilirsiniz. 😊</p>", unsafe_allow_html=True)
+    # En uygun bilet bilgisi
+    st.markdown(
+        f"<p style='color: black; font-size: 14px; font-weight: bold;'>En uygun bilet {min_price_date} tarihli {min_price} TL fiyatlı bilettir.</p>",
+        unsafe_allow_html=True
+    )
 
-# Streamlit uygulamanızı çalıştırmak için bu fonksiyonu çağırın
+# Streamlit uygulamanızı çalıştırmak için
 if __name__ == "__main__":
     run()

@@ -7,6 +7,10 @@ import pandas as pd
 import streamlit as st
 import havalimani as h
 
+#from selenium.webdriver.chrome.service import Service
+#from webdriver_manager.chrome import ChromeDriverManager
+
+
 def run():
     st.header('Uçak Uçuş Bilgileri')
     
@@ -27,13 +31,17 @@ def run():
     options.add_argument('--headless')  # Tarayıcıyı görünmez modda çalıştırır
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+
+
+
+
     
-    driver = webdriver.Chrome(options = options)
+    driver = webdriver.Chrome(options=options)
     driver.get(url)
     
     try:
         # Öğenin yüklenmesini bekle
-        flight_items = WebDriverWait(driver, 8).until(
+        flight_items = WebDriverWait(driver, 12).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.flight-item__wrapper'))
         )
     

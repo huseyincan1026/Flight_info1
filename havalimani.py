@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy
 
 data = [['istanbul', 'ist', 'istanbul-havalimani'],
         ['istanbul', 'saw', 'istanbul-sabiha-gokcen-havalimani'],
