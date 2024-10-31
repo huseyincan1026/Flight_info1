@@ -36,7 +36,7 @@ def run():
 
 
     
-    driver = webdriver.Chrome(service = Service(ChromeDriverManager(version = '130.0.6723.92').install(),options=options)
+    driver = webdriver.Chrome(service = Service(ChromeDriverManager(version = '130.0.6723.92').install(),options=options))
     driver.get(url)
     
     try:
