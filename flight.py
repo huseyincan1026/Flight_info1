@@ -28,7 +28,7 @@ def run():
     
     # Tarayıcı ayarlarını belirleyin
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # Tarayıcıyı görünmez modda çalıştırır
+    #options.add_argument('--headless')  # Tarayıcıyı görünmez modda çalıştırır
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
