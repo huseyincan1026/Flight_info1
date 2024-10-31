@@ -8,15 +8,15 @@ import grafik
 
 # Sidebar menü
 st.sidebar.title("Sayfalar")
-page = st.sidebar.radio("Sayfa Seçimi", ('Ana Menü', "Uçuşlar", "Havalimanı", 'Grafik'))
+page = st.sidebar.radio("Sayfa Seçimi", ('Ana Menü 🏠', "Uçuşlar ✈️", "Havalimanı 🛫", 'Grafik 📊'))
    
 # Seçilen sayfayı göster
-if page == 'Ana Menü':
+if page == 'Ana Menü 🏠':
     ana_menu.run()
-elif page == 'Uçuşlar':
+elif page == 'Uçuşlar ✈️':
     flight.run()
-elif page == "Havalimanı":
+elif page == "Havalimanı 🛫":
     havalimani.run()
        
-elif page == "Grafik":
+elif page == "Grafik 📊":
     grafik.run()
