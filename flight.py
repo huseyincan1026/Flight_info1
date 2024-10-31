@@ -7,8 +7,8 @@ import pandas as pd
 import streamlit as st
 import havalimani as h
 
-#from selenium.webdriver.chrome.service import Service
-#from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def run():
@@ -36,7 +36,7 @@ def run():
 
 
     
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()),options=options)
     driver.get(url)
     
     try:
