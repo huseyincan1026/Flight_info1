@@ -1,6 +1,2 @@
 chromium
 chromium-driver
-libnss3
-libxss1
-fonts-liberation
-libappindicator3-1
